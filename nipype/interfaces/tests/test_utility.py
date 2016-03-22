@@ -160,6 +160,10 @@ def test_merge():
         res = vmerge0.run()
         yield assert_false, isdefined(res.outputs.out)
 
+        vmerge0.inputs.in_lists = [0, [1, 2], [3, 4, 5]]
+        res = vmerge0.run()
+        yield assert_equal, res.outputs.out, [0, 1, 2, 3, 4, 5]
+
         hmerge3 = pe.Node(utility.Merge(3, axis='hstack'), name='hmerge3')
         hmerge3.inputs.in1 = [0]
         hmerge3.inputs.in2 = [1, 2]
@@ -170,6 +174,19 @@ def test_merge():
         hmerge3.inputs.in2 = [2, 3]
         hmerge3.inputs.in3 = [4, 5]
         res = hmerge3.run()
+        yield assert_equal, res.outputs.out, [[0, 2, 4], [1, 3, 5]]
+
+        hmerge0 = pe.Node(utility.Merge(axis='hstack'), name='hmerge0')
+        # Note: Merge(0, axis='hstack') would error on run, prior to
+        # in_lists implementation
+        res = hmerge0.run()
+        yield assert_false, isdefined(res.outputs.out)
+
+        hmerge0.inputs.in_lists = [[0], [1, 2], [3, 4, 5]]
+        res = hmerge0.run()
+        yield assert_equal, res.outputs.out, [[0, 1, 3]]
+        hmerge0.inputs.in_lists = [[0, 1], [2, 3], [4, 5]]
+        res = hmerge0.run()
         yield assert_equal, res.outputs.out, [[0, 2, 4], [1, 3, 5]]
     finally:
         os.chdir(origdir)
