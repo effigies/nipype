@@ -7,8 +7,10 @@ import shutil
 from tempfile import mkdtemp, mkstemp
 
 import numpy as np
-from nipype.testing import assert_equal, assert_true, assert_raises
+from nipype.testing import assert_equal, assert_true, assert_false, \
+    assert_raises
 from nipype.interfaces import utility
+from nipype.interfaces.base import isdefined
 import nipype.pipeline.engine as pe
 
 
@@ -136,6 +138,56 @@ def test_split():
         res = node.run()
         yield assert_equal, res.outputs.out1, 0
         yield assert_equal, res.outputs.out2, [1, 2, 3]
+    finally:
+        os.chdir(origdir)
+        shutil.rmtree(tempdir)
+
+
+def test_merge():
+    tempdir = os.path.realpath(mkdtemp())
+    origdir = os.getcwd()
+    os.chdir(tempdir)
+
+    try:
+        vmerge3 = pe.Node(utility.Merge(3), name='vmerge3')
+        vmerge3.inputs.in1 = 0
+        vmerge3.inputs.in2 = [1, 2]
+        vmerge3.inputs.in3 = [3, 4, 5]
+        res = vmerge3.run()
+        yield assert_equal, res.outputs.out, [0, 1, 2, 3, 4, 5]
+
+        vmerge0 = pe.Node(utility.Merge(), name='vmerge0')
+        res = vmerge0.run()
+        yield assert_false, isdefined(res.outputs.out)
+
+        vmerge0.inputs.in_lists = [0, [1, 2], [3, 4, 5]]
+        res = vmerge0.run()
+        yield assert_equal, res.outputs.out, [0, 1, 2, 3, 4, 5]
+
+        hmerge3 = pe.Node(utility.Merge(3, axis='hstack'), name='hmerge3')
+        hmerge3.inputs.in1 = [0]
+        hmerge3.inputs.in2 = [1, 2]
+        hmerge3.inputs.in3 = [3, 4, 5]
+        res = hmerge3.run()
+        yield assert_equal, res.outputs.out, [[0, 1, 3]]
+        hmerge3.inputs.in1 = [0, 1]
+        hmerge3.inputs.in2 = [2, 3]
+        hmerge3.inputs.in3 = [4, 5]
+        res = hmerge3.run()
+        yield assert_equal, res.outputs.out, [[0, 2, 4], [1, 3, 5]]
+
+        hmerge0 = pe.Node(utility.Merge(axis='hstack'), name='hmerge0')
+        # Note: Merge(0, axis='hstack') would error on run, prior to
+        # in_lists implementation
+        res = hmerge0.run()
+        yield assert_false, isdefined(res.outputs.out)
+
+        hmerge0.inputs.in_lists = [[0], [1, 2], [3, 4, 5]]
+        res = hmerge0.run()
+        yield assert_equal, res.outputs.out, [[0, 1, 3]]
+        hmerge0.inputs.in_lists = [[0, 1], [2, 3], [4, 5]]
+        res = hmerge0.run()
+        yield assert_equal, res.outputs.out, [[0, 2, 4], [1, 3, 5]]
     finally:
         os.chdir(origdir)
         shutil.rmtree(tempdir)
