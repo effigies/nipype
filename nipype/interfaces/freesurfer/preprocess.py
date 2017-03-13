@@ -1038,6 +1038,9 @@ class BBRegisterInputSpec6(BBRegisterInputSpec):
     init = traits.Enum('coreg', 'rr', 'spm', 'fsl', 'header', 'best', argstr='--init-%s',
                        xor=['init_reg_file'],
                        desc='initialize registration with mri_coreg, spm, fsl, or header')
+    init_best_list = traits.List(traits.Enum('spm', 'fsl', 'header', 'rr', 'coreg'),
+                                 argstr="--init-best-%s...",
+                                 desc="Initialization methods to attempt")
 
 
 class BBRegisterOutputSpec(TraitedSpec):
@@ -1106,7 +1109,6 @@ class BBRegister(FSCommand):
         return outputs
 
     def _format_arg(self, name, spec, value):
-
         if name in ['registered_file', 'out_fsl_file']:
             if isinstance(value, bool):
                 fname = self._list_outputs()[name]

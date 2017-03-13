@@ -20,6 +20,8 @@ def test_BBRegister_inputs():
     init=dict(argstr='--init-%s',
     xor=['init_reg_file'],
     ),
+    init_best_list=dict(argstr='--init-best-%s',
+    ),
     init_reg_file=dict(argstr='--init-reg %s',
     mandatory=True,
     xor=['init'],
