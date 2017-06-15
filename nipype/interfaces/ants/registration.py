@@ -11,6 +11,7 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from builtins import range, str
 import os
 
+from ...utils.filemanip import filename_to_list
 from ..base import TraitedSpec, File, Str, traits, InputMultiPath, isdefined
 from .base import ANTSCommand, ANTSCommandInputSpec
 
