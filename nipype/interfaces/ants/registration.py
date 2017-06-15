@@ -653,6 +653,20 @@ class Registration(ANTSCommand):
 --metric Mattes[ fixed1.nii, moving1.nii, 1, 32 ] --convergence [ 100x50x30, 1e-09, 20 ] \
 --smoothing-sigmas 2.0x1.0x0.0vox --shrink-factors 3x2x1 --use-estimate-learning-rate-once 1 \
 --use-histogram-matching 1 --winsorize-image-intensities [ 0.0, 1.0 ]  --write-composite-transform 1'
+
+    >>> # Test masking
+    >>> reg9 = copy.deepcopy(reg)
+    >>> reg9.inputs.fixed_image_mask = ['NULL', 'fixed1.nii']
+    >>> reg9.cmdline # doctest: +ALLOW_UNICODE
+    'antsRegistration --collapse-output-transforms 0 --dimensionality 3 --initial-moving-transform [ trans.mat, 1 ] \
+--initialize-transforms-per-stage 0 --interpolation Linear --output [ output_, output_warped_image.nii.gz ] \
+--transform Affine[ 2.0 ] --metric Mattes[ fixed1.nii, moving1.nii, 1, 32, Random, 0.05 ] \
+--convergence [ 1500x200, 1e-08, 20 ] --smoothing-sigmas 1.0x0.0vox --shrink-factors 2x1 \
+--use-estimate-learning-rate-once 1 --use-histogram-matching 1 --masks [ NULL, NULL ] \
+--transform SyN[ 0.25, 3.0, 0.0 ] --metric Mattes[ fixed1.nii, moving1.nii, 1, 32 ] \
+--convergence [ 100x50x30, 1e-09, 20 ] --smoothing-sigmas 2.0x1.0x0.0vox --shrink-factors 3x2x1 \
+--use-estimate-learning-rate-once 1 --use-histogram-matching 1 --masks [ fixed1.nii, NULL ] \
+--winsorize-image-intensities [ 0.0, 1.0 ]  --write-composite-transform 1'
     """
     DEF_SAMPLING_STRATEGY = 'None'
     """The default sampling strategy argument."""
@@ -792,13 +806,13 @@ class Registration(ANTSCommand):
                     isdefined(self.inputs.moving_image_mask))):
                 if isdefined(self.inputs.fixed_image_mask):
                     fixed_masks = filename_to_list(self.inputs.fixed_image_mask)
-                    fixed_mask = fixed_mask[ii if len(fixed_masks) > 1 else 0]
+                    fixed_mask = fixed_masks[ii if len(fixed_masks) > 1 else 0]
                 else:
                     fixed_mask = 'NULL'
 
                 if isdefined(self.inputs.moving_image_mask):
                     moving_masks = filename_to_list(self.inputs.moving_image_mask)
-                    moving_mask = moving_mask[ii if len(moving_masks) > 1 else 0]
+                    moving_mask = moving_masks[ii if len(moving_masks) > 1 else 0]
                 else:
                     moving_mask = 'NULL'
                 retval.append('--masks [ %s, %s ]' % (fixed_mask, moving_mask))
