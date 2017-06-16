@@ -423,9 +423,9 @@ class MultiImageMathsInput(MathsInput):
     op_string = traits.String(position=4, argstr="%s", mandatory=True,
                               desc=("python formatted string of operations "
                                     "to perform"))
-    operand_files = InputMultiPath(File(exists=True), mandatory=True,
-                                   desc=("list of file names to plug into op "
-                                         "string"))
+    operand_files = traits.Either(
+        traits.List(File(exists=True)), InputMultiPath(File(exists=True)),
+        mandatory=True, desc=("list of file names to plug into op string"))
 
 
 class MultiImageMaths(MathsCommand):
