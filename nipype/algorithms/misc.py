@@ -19,17 +19,14 @@ from scipy.ndimage.morphology import grey_dilation
 import scipy.io as sio
 import itertools
 import scipy.stats as stats
-import warnings
 
 from .. import logging
-from . import metrics as nam
 from ..interfaces.base import (
     BaseInterface, traits, TraitedSpec, File, InputMultiPath, OutputMultiPath,
     BaseInterfaceInputSpec, isdefined, DynamicTraitedSpec, Undefined)
 from ..utils.filemanip import fname_presuffix, split_filename, ensure_list
 from ..utils import NUMPY_MMAP
 
-from . import confounds
 
 iflogger = logging.getLogger('nipype.interface')
 
@@ -1519,62 +1516,3 @@ class CalculateMedian(BaseInterface):
             filename = self._gen_fname(suffix)
         median_img.to_filename(filename)
         return filename
-
-
-# Deprecated interfaces ------------------------------------------------------
-
-
-class Distance(nam.Distance):
-    """Calculates distance between two volumes.
-
-    .. deprecated:: 0.10.0
-       Use :py:class:`nipype.algorithms.metrics.Distance` instead.
-    """
-
-    def __init__(self, **inputs):
-        super(nam.Distance, self).__init__(**inputs)
-        warnings.warn(("This interface has been deprecated since 0.10.0,"
-                       " please use nipype.algorithms.metrics.Distance"),
-                      DeprecationWarning)
-
-
-class Overlap(nam.Overlap):
-    """Calculates various overlap measures between two maps.
-
-    .. deprecated:: 0.10.0
-       Use :py:class:`nipype.algorithms.metrics.Overlap` instead.
-    """
-
-    def __init__(self, **inputs):
-        super(nam.Overlap, self).__init__(**inputs)
-        warnings.warn(("This interface has been deprecated since 0.10.0,"
-                       " please use nipype.algorithms.metrics.Overlap"),
-                      DeprecationWarning)
-
-
-class FuzzyOverlap(nam.FuzzyOverlap):
-    """Calculates various overlap measures between two maps, using a fuzzy
-    definition.
-
-    .. deprecated:: 0.10.0
-       Use :py:class:`nipype.algorithms.metrics.FuzzyOverlap` instead.
-    """
-
-    def __init__(self, **inputs):
-        super(nam.FuzzyOverlap, self).__init__(**inputs)
-        warnings.warn(("This interface has been deprecated since 0.10.0,"
-                       " please use nipype.algorithms.metrics.FuzzyOverlap"),
-                      DeprecationWarning)
-
-
-class TSNR(confounds.TSNR):
-    """
-    .. deprecated:: 0.12.1
-       Use :py:class:`nipype.algorithms.confounds.TSNR` instead
-    """
-
-    def __init__(self, **inputs):
-        super(confounds.TSNR, self).__init__(**inputs)
-        warnings.warn(("This interface has been moved since 0.12.0,"
-                       " please use nipype.algorithms.confounds.TSNR"),
-                      UserWarning)
