@@ -8,8 +8,6 @@ import re
 import sys
 import warnings
 
-from nipype.interfaces.base import BaseInterface
-
 import black
 
 
@@ -182,6 +180,8 @@ class InterfaceChecker(object):
         Returns
         -------
         """
+        from nipype.interfaces.base import BaseInterface
+
         # get the names of all classes and functions
         _, classes = self._parse_module(uri)
         if not classes:
@@ -324,7 +324,7 @@ class InterfaceChecker(object):
                     and "xor" not in trait.__dict__
                 ):
                     if (
-                        trait.trait_type.__class__.__name__ is "Range"
+                        trait.trait_type.__class__.__name__ == "Range"
                         and trait.default == trait.trait_type._low
                     ):
                         continue
@@ -480,6 +480,7 @@ class InterfaceChecker(object):
 
 
 if __name__ == "__main__":
+    os.environ["NIPYPE_NO_ET"] = "1"
     package = "nipype"
     ic = InterfaceChecker(package)
     # Packages that should not be included in generated API docs.
