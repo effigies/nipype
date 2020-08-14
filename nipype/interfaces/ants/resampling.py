@@ -360,6 +360,7 @@ class ApplyTransformsInputSpec(ANTSCommandInputSpec):
         "MultiLabel",
         "Gaussian",
         "BSpline",
+        "GenericLabel",
         argstr="%s",
         usedefault=True,
     )
@@ -368,6 +369,7 @@ class ApplyTransformsInputSpec(ANTSCommandInputSpec):
         traits.Tuple(
             traits.Float(), traits.Float()  # Gaussian/MultiLabel (sigma, alpha)
         ),
+        traits.Tuple(traits.Str()),  # GenericLabel
     )
     transforms = traits.Either(
         InputMultiPath(File(exists=True)),
@@ -500,11 +502,12 @@ class ApplyTransforms(ANTSCommand):
                 "BSpline",
                 "MultiLabel",
                 "Gaussian",
+                "GenericLabel",
             ] and isdefined(self.inputs.interpolation_parameters):
                 return "--interpolation %s[ %s ]" % (
                     self.inputs.interpolation,
                     ", ".join(
-                        [str(param) for param in self.inputs.interpolation_parameters]
+                        str(param) for param in self.inputs.interpolation_parameters
                     ),
                 )
             else:
