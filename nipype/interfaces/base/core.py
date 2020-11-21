@@ -185,8 +185,8 @@ class BaseInterface(Interface):
         self.inputs = self.input_spec()
         unavailable_traits = self._check_version_requirements(self.inputs, raise_exception=False)
         if unavailable_traits:
-            self.inputs.traitset(**{k: Undefined for k in unavailable_traits})
-        self.inputs.traitset(**inputs)
+            self.inputs.trait_set(**{k: Undefined for k in unavailable_traits})
+        self.inputs.trait_set(**inputs)
 
         self.ignore_exception = ignore_exception
 
