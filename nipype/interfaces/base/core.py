@@ -183,7 +183,7 @@ class BaseInterface(Interface):
         # Create input spec, disable any defaults that are unavailable due to
         # version, and then apply the inputs that were passed.
         self.inputs = self.input_spec()
-        unavailable_traits = self._check_version_requirements(self.inputs)
+        unavailable_traits = self._check_version_requirements(self.inputs, raise_exception=False)
         if unavailable_traits:
             self.inputs.traitset(**{k: Undefined for k in unavailable_traits})
         self.inputs.traitset(**inputs)
