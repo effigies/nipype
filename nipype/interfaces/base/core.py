@@ -662,7 +662,7 @@ class CommandLine(BaseInterface):
         validates arguments and generates command line"""
         self._check_mandatory_inputs()
         allargs = [self._cmd_prefix + self.cmd] + self._parse_inputs()
-        return " ".join(allargs)
+        return shlex.join(allargs)
 
     @property
     def terminal_output(self):
