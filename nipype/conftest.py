@@ -1,6 +1,7 @@
+import importlib
 import os
 import shutil
-from tempfile import mkdtemp
+import tempfile
 import pytest
 import numpy as np
 import py.path as pp
@@ -8,9 +9,29 @@ import py.path as pp
 NIPYPE_DATADIR = os.path.realpath(
     os.path.join(os.path.dirname(__file__), "testing/data")
 )
-temp_folder = mkdtemp()
-data_dir = os.path.join(temp_folder, "data")
-shutil.copytree(NIPYPE_DATADIR, data_dir)
+NIPYPE_TMPDIR = tempfile.mkdtemp()
+TMP_DATADIR = os.path.join(NIPYPE_TMPDIR, "data")
+
+
+def pytest_configure(config):
+    shutil.copytree(NIPYPE_DATADIR, TMP_DATADIR)
+
+    # Pytest uses gettempdir() to construct its tmp_paths, but the logic to get
+    # `pytest-of-<user>/pytest-<n>` directories is contingent on not directly
+    # configuring the `config.option.base_temp` value.
+    # Instead of replicating that logic, inject a new directory into gettempdir()
+    #
+    # Use the discovered temp dir as a base, to respect user/system settings.
+    if ' ' not in (base_temp := tempfile.gettempdir()):
+        new_base = os.path.join(base_temp, "nipype tmp")
+        os.makedirs(new_base, exist_ok=True)
+        os.environ['TMPDIR'] = os.path.join(base_temp, "nipype tmp")
+        importlib.reload(tempfile)
+        assert tempfile.gettempdir() == os.path.join(base_temp, "nipype tmp")
+
+
+def pytest_unconfigure(config):
+    shutil.rmtree(NIPYPE_TMPDIR)
 
 
 @pytest.fixture(autouse=True)
@@ -18,7 +39,7 @@ def add_np(doctest_namespace):
     doctest_namespace["np"] = np
     doctest_namespace["os"] = os
     doctest_namespace["pytest"] = pytest
-    doctest_namespace["datadir"] = data_dir
+    doctest_namespace["datadir"] = TMP_DATADIR
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -42,8 +63,3 @@ def _docdir(request):
     else:
         # For normal tests, we have to yield, since this is a yield-fixture.
         yield
-
-
-def pytest_unconfigure(config):
-    # Delete temp folder after session is finished
-    shutil.rmtree(temp_folder)
