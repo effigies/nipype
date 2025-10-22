@@ -139,6 +139,7 @@ REQUIRES = [
     "numpy>=%s" % NUMPY_MIN_VERSION,
     "packaging",
     "prov>=%s" % PROV_MIN_VERSION,
+    "lxml",  # prov < 2.0.2 depended on lxml, now it's an [xml] extra
     "pydot>=%s" % PYDOT_MIN_VERSION,
     "python-dateutil>=%s" % DATEUTIL_MIN_VERSION,
     "rdflib>=%s" % RDFLIB_MIN_VERSION,
